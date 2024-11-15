@@ -123,12 +123,6 @@ This script uses encryption to protect your VIT Wi-Fi credentials. The credentia
 
 ---
 
-## License
-
-This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
-
----
-
 ## Contact
 
 If you have any questions or issues, feel free to open an issue in the repository or contact me via GitHub.
