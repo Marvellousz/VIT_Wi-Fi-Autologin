@@ -1,51 +1,51 @@
-# Function to display an error message and exit
-function Error-Exit {
-    param (
-        [string]$message
-    )
-    Write-Host "Error: $message" -ForegroundColor Red
-    exit 1
+# Install dependencies function
+function Install-Dependencies {
+    Write-Host "Checking for Python dependencies..."
+
+    # Check if pip is installed
+    if (-not (Get-Command pip -ErrorAction SilentlyContinue)) {
+        Write-Host "pip not found. Installing pip..."
+        python -m ensurepip --upgrade
+    }
+
+    # Install required Python packages
+    Write-Host "Installing required dependencies..."
+    pip install python-dotenv requests cryptography
 }
 
-# Check if Python3 is installed
-$python = Get-Command python -ErrorAction SilentlyContinue
-if (-not $python) {
-    Error-Exit "Python3 is not installed. Please install Python3 and ensure it's added to your system's PATH."
-}
+# Create directories and download files from GitHub
+Write-Host "Creating directories and downloading files from GitHub..."
 
-# Check if pip is installed
-$pip = Get-Command pip -ErrorAction SilentlyContinue
-if (-not $pip) {
-    Error-Exit "pip is not installed. Please install pip and ensure it's added to your system's PATH."
-}
+# Create the vit-wifi-autologin directory
+New-Item -ItemType "directory" -Path "$HOME\vit-wifi-autologin" -Force
 
-# Install required dependencies
-Write-Host "Installing required dependencies..."
-pip install python-dotenv requests cryptography -Force -ErrorAction Stop
+# Download the necessary files from GitHub
+Invoke-WebRequest -Uri "https://github.com/Marvellousz/test/raw/main/main.py" -Outfile "$HOME\vit-wifi-autologin\main.py"
+Invoke-WebRequest -Uri "https://github.com/Marvellousz/test/raw/main/setup.py" -Outfile "$HOME\vit-wifi-autologin\setup.py"
+Invoke-WebRequest -Uri "https://github.com/Marvellousz/test/raw/main/wifi.bat" -Outfile "$HOME\wifi.bat"
 
-# Clone the repository
-Write-Host "Cloning the repository..."
-git clone https://github.com/Marvellousz/test.git "$env:USERPROFILE\vit-wifi-autologin" -ErrorAction Stop
+# Install dependencies
+Install-Dependencies
 
-# Navigate to the repo directory
-Set-Location -Path "$env:USERPROFILE\vit-wifi-autologin" -ErrorAction Stop
-
-# Run the setup script
+# Run the setup.py script
 Write-Host "Running the setup script..."
-python setup.py -ErrorAction Stop
+python "$HOME\vit-wifi-autologin\setup.py"
 
-# Final instructions
-Write-Host "Installation complete! You can now run the Wi-Fi login script by typing 'wifi'."
+# Create symlink for `wifi` command in system PATH (make it executable globally)
+Write-Host "Creating symlink for 'wifi' command..."
 
-# Add a symbolic link for the 'wifi' command to be accessible globally
-$wifiScriptPath = "$env:USERPROFILE\vit-wifi-autologin\wifi.py"
-$wifiCommandPath = "$env:USERPROFILE\Scripts\wifi.bat"
+# Create the symlink in a directory that's part of the system's PATH (e.g., C:\Windows\System32)
+$wifiBatPath = "$HOME\wifi.bat"
+$destinationPath = "C:\Windows\System32\wifi.bat"
 
-if (-not (Test-Path -Path "$env:USERPROFILE\Scripts")) {
-    New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\Scripts"
+# Check if wifi.bat exists in destination path, if not create a symlink
+if (Test-Path $destinationPath) {
+    Write-Host "wifi.bat already exists in System32."
+} else {
+    New-Item -ItemType SymbolicLink -Path $destinationPath -Target $wifiBatPath
+    Write-Host "Symlink created successfully!"
 }
 
-# Create a batch file to run the script
-Set-Content -Path $wifiCommandPath -Value "@echo off`npython `"$wifiScriptPath`""
-
-Write-Host "A 'wifi' command has been created. You can now run the Wi-Fi login script from anywhere in the command line."
+# Final Instructions
+Write-Host "Installation complete! You can now run the Wi-Fi login script by typing 'wifi'."
+Write-Host "Run 'wifi' from anywhere in the command line or PowerShell to log in."
