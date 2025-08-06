@@ -1,4 +1,4 @@
-# VIT Wi-Fi Autologin
+# vit wi-fi autologin
 
 This is a Python script designed to automatically log you into the VIT Hostel Wi-Fi network. Once installed, you can quickly log in by typing `wifi` in your terminal (Windows) or command line (Unix-based systems). This script uses encrypted credentials for enhanced security.
 
